@@ -13,9 +13,9 @@ export class UserService {
   ) {}
 
   async updateUsers() {
-    const { data } = await this.axiosService.fetcher('users');
+    const res = await this.axiosService.fetcher('users');
 
-    data._embedded.users.forEach((el) => {
+    res?.data._embedded.users.forEach((el) => {
       return this.userRepository
         .createQueryBuilder()
         .update(User)

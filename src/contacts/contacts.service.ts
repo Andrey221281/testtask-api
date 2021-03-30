@@ -17,9 +17,9 @@ export class ContactsService {
   }
 
   async updateContacts() {
-    const { data } = await this.axiosService.fetcher('contacts?with=leads');
+    const res = await this.axiosService.fetcher('contacts?with=leads');
 
-    data._embedded.contacts.forEach((el) => {
+    res?.data._embedded.contacts.forEach((el) => {
       return this.contactRepository
         .createQueryBuilder()
         .update(Contact)

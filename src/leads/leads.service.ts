@@ -35,9 +35,9 @@ export class LeadsService {
   }
 
   async createLeads() {
-    const { data } = await this.axiosService.fetcher('leads?with=contacts');
+    const res = await this.axiosService.fetcher('leads?with=contacts');
 
-    data._embedded.leads.forEach((el) => {
+    res?.data._embedded.leads.forEach((el) => {
       let idx;
       const contacts = el._embedded.contacts.map(
         (el) => (idx = parseInt(el.id)),

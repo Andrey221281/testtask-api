@@ -13,9 +13,9 @@ export class PipelinesService {
   ) {}
 
   async updatePipelines() {
-    const { data } = await this.axiosService.fetcher('leads/pipelines');
+    const res = await this.axiosService.fetcher('leads/pipelines');
 
-    data._embedded.pipelines.map((el) => {
+    res?.data._embedded.pipelines.map((el) => {
       el._embedded?.statuses.forEach((statuses) => {
         return this.pipelineRepository
           .createQueryBuilder()
