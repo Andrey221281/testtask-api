@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Lead } from '../leads/leads.entity';
 
 @Entity()
 export class Pipeline {
@@ -8,12 +15,15 @@ export class Pipeline {
   @Column()
   pipelineId: string;
 
-  @Column()
-  leadId: number;
-
   @Column({ nullable: true })
   name?: string;
 
   @Column({ nullable: true })
   color?: string;
+
+  @OneToOne(() => Lead, (lead: Lead) => lead.pipeline, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  lead?: Lead;
 }

@@ -11,4 +11,19 @@ export class UserService {
     private userRepository: Repository<User>,
     private axiosService: AxiosService,
   ) {}
+
+  async updateUsers() {
+    const { data } = await this.axiosService.fetcher('users');
+
+    data._embedded.users.forEach((el) => {
+      return this.userRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({
+          name: el.name,
+        })
+        .where('userId = :userId', { userId: el.id })
+        .execute();
+    });
+  }
 }

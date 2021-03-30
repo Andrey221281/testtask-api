@@ -11,4 +11,22 @@ export class PipelinesService {
     private pipelineRepository: Repository<Pipeline>,
     private axiosService: AxiosService,
   ) {}
+
+  async updatePipelines() {
+    const { data } = await this.axiosService.fetcher('leads/pipelines');
+
+    data._embedded.pipelines.map((el) => {
+      el._embedded?.statuses.forEach((statuses) => {
+        return this.pipelineRepository
+          .createQueryBuilder()
+          .update(Pipeline)
+          .set({
+            name: statuses.name,
+            color: statuses.color,
+          })
+          .where('pipelineId = :pipelineId', { pipelineId: statuses.id })
+          .execute();
+      });
+    });
+  }
 }

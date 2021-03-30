@@ -7,5 +7,6 @@ import { Pipeline } from './pipelines.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Pipeline]), AxiosModule],
   providers: [PipelinesService],
+  exports: [PipelinesService],
 })
 export class PipelinesModule {}

@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { ContactsService } from './contacts.service';
 
-@Controller('user')
-export class ContactsController {}
+@Controller('contact')
+export class ContactsController {
+  constructor(private contactsService: ContactsService) {}
+
+  @Get()
+  getContacts() {
+    return this.contactsService.getContacts();
+  }
+}

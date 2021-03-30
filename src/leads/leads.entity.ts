@@ -1,4 +1,14 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
+import { User } from '../users/users.entity';
+import { Contact } from '../contacts/contacts.entity';
+import { Pipeline } from '../pipelines/pipelines.entity';
 
 @Entity()
 export class Lead {
@@ -11,13 +21,13 @@ export class Lead {
   @Column()
   price: number;
 
-  @Column('int', { array: true })
+  @Column('int', { array: true, nullable: true })
   contactsId: number[];
 
   @Column()
   pipelineId: number;
 
-  @Column()
+  @Column({ nullable: true })
   userId: number;
 
   @Column('json', { nullable: true })
@@ -25,4 +35,13 @@ export class Lead {
 
   @Column()
   created_at: number;
+
+  @OneToOne(() => User, (user) => user.lead, { cascade: true })
+  user: User;
+
+  @OneToMany(() => Contact, (contact) => contact.lead, { cascade: true })
+  contacts: Contact[];
+
+  @OneToOne(() => Pipeline, (pipeline) => pipeline.lead, { cascade: true })
+  pipeline: Pipeline;
 }
