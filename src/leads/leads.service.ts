@@ -6,6 +6,7 @@ import { AxiosService } from '../axios/axios.service';
 import { UserService } from '../users/user.service';
 import { ContactsService } from '../contacts/contacts.service';
 import { PipelinesService } from '../pipelines/pipelines.service';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class LeadsService {
@@ -21,6 +22,12 @@ export class LeadsService {
   ) {}
 
   async onModuleInit() {
+    await this.getLeads();
+  }
+
+  @Cron('*/5 * * * *')
+  async getLeads() {
+    this.logger.debug('Cron update');
     await this.createLeads();
     await this.usersService.updateUsers();
     await this.contactsService.updateContacts();
@@ -58,8 +65,29 @@ export class LeadsService {
     });
   }
 
-  getLeads() {
-    return this.leadRepository.find({
+  async findById(id) {
+    return await this.leadRepository
+      .createQueryBuilder('lead')
+      .leftJoinAndSelect('lead.pipeline', 'pipeline')
+      .leftJoinAndSelect('lead.user', 'user')
+      .leftJoinAndSelect('lead.contacts', 'contacts')
+      .where('lead.id = :id', { id })
+      .getOne();
+  }
+
+  async search(query) {
+    if (query) {
+      return await this.leadRepository
+        .createQueryBuilder('lead')
+        .leftJoinAndSelect('lead.pipeline', 'pipeline')
+        .leftJoinAndSelect('lead.user', 'user')
+        .leftJoinAndSelect('lead.contacts', 'contacts')
+        .where(`to_tsvector(lead.name) @@ to_tsquery(:query)`, {
+          query: `${query}:*`,
+        })
+        .getMany();
+    }
+    return await this.leadRepository.find({
       relations: ['contacts', 'user', 'pipeline'],
     });
   }
