@@ -4,6 +4,9 @@ import { LeadsModule } from './leads/leads.module';
 import { AxiosModule } from './axios/axios.module';
 import * as ormconfig from './ormconfig';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { PipelinesModule } from './pipelines/pipelines.module';
 
 @Module({
   imports: [
@@ -11,6 +14,9 @@ import { ConfigModule } from '@nestjs/config';
     TypeOrmModule.forRoot(ormconfig),
     LeadsModule,
     AxiosModule,
+    UsersModule,
+    ContactsModule,
+    PipelinesModule,
   ],
 })
 export class AppModule {}

@@ -11,7 +11,7 @@ export class LeadsService {
   constructor(
     @InjectRepository(Lead)
     private leadRepository: Repository<Lead>,
-    private axiosServise: AxiosService,
+    private axiosService: AxiosService,
   ) {}
 
   async onModuleInit() {
@@ -28,7 +28,7 @@ export class LeadsService {
   }
 
   async createLeads() {
-    const { data } = await this.axiosServise.fetcher('leads?with=contacts');
+    const { data } = await this.axiosService.fetcher('leads?with=contacts');
 
     data._embedded.leads.forEach((el) => {
       const contacts = el._embedded.contacts.map((el) => parseInt(el.id));
