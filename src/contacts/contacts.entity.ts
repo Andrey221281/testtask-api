@@ -2,6 +2,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
@@ -10,25 +12,12 @@ import { Lead } from '../leads/leads.entity';
 
 @Entity()
 export class Contact {
-  @PrimaryGeneratedColumn()
-  id?: number;
+  @PrimaryColumn()
+  id: number;
 
   @Column({ nullable: true })
-  first_name?: string;
-
-  @Column({ nullable: true })
-  last_name?: string;
-
-  @Column({ nullable: true })
-  contactId: number;
+  name: string;
 
   @Column('json', { nullable: true })
-  custom_fields_values?: unknown[];
-
-  @ManyToOne(() => Lead, (lead: Lead) => lead.contacts, {
-    onDelete: 'CASCADE',
-  })
-  // TODO add arr of contacts
-  @JoinColumn({ name: 'contactsId' })
-  lead?: Lead;
+  custom_fields_values: unknown[];
 }

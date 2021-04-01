@@ -6,16 +6,19 @@ import { User } from './users.entity';
 
 @Injectable()
 export class UserService {
+  public users: any[] = [];
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private axiosService: AxiosService,
   ) {}
 
-  async updateUsers() {
-    const res = await this.axiosService.fetcher('users');
+  async onModuleInit() {
+    await this.fetchAllUsers();
+  }
 
-    res?.data._embedded.users.forEach((el) => {
+  updateUsers() {
+    this.users.forEach((el) => {
       return this.userRepository
         .createQueryBuilder()
         .update(User)
@@ -25,5 +28,10 @@ export class UserService {
         .where('userId = :userId', { userId: el.id })
         .execute();
     });
+  }
+
+  async fetchAllUsers() {
+    const users = await this.axiosService.fetcher('users');
+    this.users = [...users.data._embedded.users];
   }
 }

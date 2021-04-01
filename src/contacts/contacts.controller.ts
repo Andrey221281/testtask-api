@@ -5,8 +5,8 @@ import { ContactsService } from './contacts.service';
 export class ContactsController {
   constructor(private contactsService: ContactsService) {}
 
-  @Get()
-  getContacts() {
-    return this.contactsService.getContacts();
-  }
+  // @Get()
+  // getContacts() {
+  //   return this.contactsService.getContacts();
+  // }
 }

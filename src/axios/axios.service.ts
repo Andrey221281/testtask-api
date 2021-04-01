@@ -45,6 +45,8 @@ export class AxiosService {
 
       async (error) => {
         const status = error.response ? error.response.status : null;
+        // error.config.headers.authorization = '';
+        console.log(error.data);
 
         if (token && status === 401) {
           console.log('need to refresh token');

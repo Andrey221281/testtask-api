@@ -7,10 +7,11 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from '../users/users.module';
 import { ContactsModule } from '../contacts/contacts.module';
 import { PipelinesModule } from '../pipelines/pipelines.module';
+import { Contact } from '../contacts/contacts.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Lead]),
+    TypeOrmModule.forFeature([Lead, Contact]),
     AxiosModule,
     UsersModule,
     ContactsModule,
@@ -18,5 +19,6 @@ import { PipelinesModule } from '../pipelines/pipelines.module';
   ],
   controllers: [LeadsController],
   providers: [LeadsService],
+  exports: [LeadsService],
 })
 export class LeadsModule {}

@@ -6,30 +6,33 @@ import { Contact } from './contacts.entity';
 
 @Injectable()
 export class ContactsService {
+  public contacts: any[] = [];
   constructor(
     @InjectRepository(Contact)
     private contactRepository: Repository<Contact>,
     private axiosService: AxiosService,
   ) {}
 
-  getContacts() {
-    return this.contactRepository.find();
+  async onModuleInit() {
+    await this.fetchAllContacts();
   }
 
-  async updateContacts() {
-    const res = await this.axiosService.fetcher('contacts?with=leads');
-
-    res?.data._embedded.contacts.forEach((el) => {
+  updateContacts() {
+    this.contacts.forEach((el) => {
       return this.contactRepository
         .createQueryBuilder()
         .update(Contact)
         .set({
-          first_name: el.first_name,
-          last_name: el.last_name,
+          name: el.name,
           custom_fields_values: el.custom_fields_values,
         })
-        .where('contactId = :contactId', { contactId: el.id })
+        .where('id = :id', { id: el.id })
         .execute();
     });
+  }
+
+  async fetchAllContacts() {
+    const contacts = await this.axiosService.fetcher('contacts?with=leads');
+    this.contacts = [...contacts.data._embedded.contacts];
   }
 }

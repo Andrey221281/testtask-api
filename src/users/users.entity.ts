@@ -18,6 +18,7 @@ export class User {
   @Column()
   userId: number;
 
+  // TODO разобраться с каскадами
   @OneToOne(() => Lead, (lead) => lead.user, {
     onDelete: 'CASCADE',
   })

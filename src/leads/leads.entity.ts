@@ -2,9 +2,12 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../users/users.entity';
 import { Contact } from '../contacts/contacts.entity';
@@ -12,34 +15,31 @@ import { Pipeline } from '../pipelines/pipelines.entity';
 
 @Entity()
 export class Lead {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   price: number;
 
-  @Column('int', { array: true, nullable: true })
-  contactsId: number[];
+  @Column()
+  lead_id: number;
 
   @Column()
-  pipelineId: number;
+  status_id: number;
 
   @Column({ nullable: true })
-  userId: number;
-
-  @Column('json', { nullable: true })
-  tags?: { id: number; name: string }[];
-
-  @Column()
   created_at: number;
 
   @OneToOne(() => User, (user) => user.lead, { cascade: true })
   user: User;
 
-  @OneToMany(() => Contact, (contact) => contact.lead, { cascade: true })
+  @ManyToMany(() => Contact, {
+    cascade: true,
+  })
+  @JoinTable()
   contacts: Contact[];
 
   @OneToOne(() => Pipeline, (pipeline) => pipeline.lead, { cascade: true })

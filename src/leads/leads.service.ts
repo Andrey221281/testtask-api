@@ -11,6 +11,9 @@ import { Cron } from '@nestjs/schedule';
 @Injectable()
 export class LeadsService {
   private readonly logger = new Logger(LeadsService.name);
+  // Вопрос про св-ва объекта и надо ли обозначать методы public private
+  // Наверное тут не хватает типизации
+  public leads: any = [];
 
   constructor(
     @InjectRepository(Lead)
@@ -22,49 +25,54 @@ export class LeadsService {
   ) {}
 
   async onModuleInit() {
+    // при инициализации модуля
     await this.getLeads();
   }
 
   @Cron('*/5 * * * *')
   async getLeads() {
     this.logger.debug('Cron update');
+    // получаем массив сделок из CRM и кладем в св-ва объекта
+    const leads = await this.fetchAllLeads();
+    this.leads = [...leads.data._embedded.leads];
+
+    // кладем сделки в базу
     await this.createLeads();
-    await this.usersService.updateUsers();
-    await this.contactsService.updateContacts();
-    await this.pipelinesService.updatePipelines();
   }
 
   async createLeads() {
-    const res = await this.axiosService.fetcher('leads?with=contacts');
+    // получаем массив сделок из базы
+    // мапим id сделок
+    const leadsInBase = await this.leadRepository.find();
+    const leadsIdsInBase = leadsInBase.map((e) => e.lead_id);
 
-    res?.data._embedded.leads.forEach((el) => {
-      let idx;
-      const contacts = el._embedded.contacts.map(
-        (el) => (idx = parseInt(el.id)),
-      );
-
-      this.leadRepository
-        .findOne({ where: { id: el.id } })
-        .then((data: Lead) => {
-          const lead = new Lead();
-          lead.id = el.id;
-          lead.name = el.name;
-          lead.price = el.price;
-          lead.tags = el._embedded.tags;
-          lead.pipelineId = el.status_id;
-          lead.contactsId = [...contacts];
-          lead.pipeline = { pipelineId: el.status_id };
-          lead.userId = el.responsible_user_id;
-          lead.user = { userId: parseInt(el.responsible_user_id) };
-          lead.contacts = [{ contactId: idx }];
-          lead.created_at = el.created_at;
-          if (data?.id !== el.id) {
-            this.leadRepository.save(lead);
-          }
+    // сохраняем в базу сделки
+    this.leads.forEach((el) => {
+      if (!leadsIdsInBase.includes(el.id)) {
+        this.leadRepository.save({
+          contacts: [...el._embedded.contacts],
+          lead_id: el.id,
+          pipeline: { pipelineId: el.pipeline_id },
+          user: { userId: el.responsible_user_id },
+          ...el,
         });
+      }
     });
+    // Когда уже все получено:
+    // обновляем контакты
+    this.contactsService.updateContacts();
+    // обновляем пользователей
+    this.usersService.updateUsers();
+    // обновляем воронки
+    this.pipelinesService.updatePipelines();
   }
 
+  async fetchAllLeads() {
+    // фетчим сделки
+    return await this.axiosService.fetcher('leads?with=contacts');
+  }
+
+  // По id
   async findById(id) {
     return await this.leadRepository
       .createQueryBuilder('lead')
@@ -75,6 +83,7 @@ export class LeadsService {
       .getOne();
   }
 
+  // Поиск :)
   async search(query) {
     if (query) {
       return await this.leadRepository

@@ -10,16 +10,16 @@ import { Lead } from '../leads/leads.entity';
 @Entity()
 export class Pipeline {
   @PrimaryGeneratedColumn()
-  id?: string;
+  id: string;
 
   @Column()
-  pipelineId: string;
+  pipelineId: number;
 
   @Column({ nullable: true })
   name?: string;
 
-  @Column({ nullable: true })
-  color?: string;
+  @Column('json', { nullable: true })
+  statuses?: unknown[];
 
   @OneToOne(() => Lead, (lead: Lead) => lead.pipeline, {
     onDelete: 'CASCADE',
